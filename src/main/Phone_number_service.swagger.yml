@@ -1,0 +1,99 @@
+openapi: 3.0.3
+info:
+  title: Phone Number Service API
+  description: REST API for managing customer phone numbers in a telecom system
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+    description: Local development server
+paths:
+  /v{version}/phoneNumbers:
+    get:
+      summary: Get all phone numbers
+      parameters:
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: string
+          description: API version
+      responses:
+        '200':
+          description: List of all phone numbers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  /v{version}/customers/{customerId}/phone-numbers:
+    get:
+      summary: Get all phone numbers by customer ID
+      parameters:
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: string
+          description: API version
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 8
+            pattern: '^[a-zA-Z0-9]*$'
+          description: Alphanumeric customer ID (max 8 characters)
+      responses:
+        '200':
+          description: List of phone numbers for a customer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          description: Invalid customer ID
+
+  /v{version}/phone-numbers/{phoneNumber}/activate:
+    patch:
+      summary: Activate a phone number
+      parameters:
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: string
+          description: API version
+        - name: phoneNumber
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 20
+            pattern: '^[+]?\\d{1,3}?[- .()]?\\d+([- .()]?\\d+)*$'
+          description: Phone number to activate (supports +, -, space, parentheses)
+      responses:
+        '200':
+          description: Phone number activated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhoneNumberResponseDto'
+        '400':
+          description: Invalid phone number
+
+components:
+  schemas:
+    PhoneNumberResponseDto:
+      type: object
+      properties:
+        phoneNumber:
+          type: string
+        active:
+          type: boolean
+      required:
+        - phoneNumber
+        - active
